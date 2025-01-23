@@ -1,7 +1,9 @@
 <template>
   <div class="app">
     <h1>Страница с поставми</h1>
-    <my-button @click="showDialog()">Добавить пост</my-button>
+    <my-button @click="fetchPosts">Получить посты</my-button>
+    <my-button @click="showDialog()"
+    style="margin-top: 10px">Добавить пост</my-button>
     <my-dialog v-model:show="dialogVisible">
       <post-form @create="createPost"/>
     </my-dialog>
@@ -12,29 +14,38 @@
 import PostForm from "@/components/PostForm.vue";
 import PostList from "@/components/PostList.vue";
 import MyDialog from "@/components/UI/MyDialog.vue";
+import axios from "axios";
 export default {
-  components: {MyDialog, PostForm, PostList},
+  components: { MyDialog, PostForm, PostList},
   data() {
     return {
       posts:
           [
-            {id: 1, title: 'Пост о ГИС', body: 'Описание ГИС'},
-            {id: 2, title: 'Пост о ГИС 2', body: 'Описание ГИС 2'},
-            {id: 3, title: 'Пост о ГИС 3', body: 'Описание ГИС 3'},
-            {id: 4, title: 'Пост о ГИС 4', body: 'Описание ГИС 4'}
+
           ],
-      dialogVisible: false
+      dialogVisible: false,
     }
   },
   methods: {
     createPost(post) {
       this.posts.push(post);
+      this.dialogVisible = false
     },
     removePost(post) {
       this.posts = this.posts.filter(p => p.id !== post.id);
     },
     showDialog() {
       this.dialogVisible = true
+    },
+    async fetchPosts() {
+      try {
+        const response = await axios.get('https://jsonplaceholder.typicode.com/posts?_limit=10');
+        this.posts = response.data;
+        console.log(response);
+      }
+      catch (e) {
+        alert("Ошибка")
+      }
     }
   }
 }
