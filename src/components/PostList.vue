@@ -36,11 +36,28 @@ h3 {
 }
 .post-list-enter-active,
 .post-list-leave-active {
-  transition: all 0.5s ease;
+  transition: all 0.3s ease;
 }
 .post-list-enter-from,
 .post-list-leave-to {
   opacity: 0;
+  transform: translateX(130px);
+}
+.post-list-move, /* apply transition to moving elements */
+.post-list-enter-active,
+.post-list-leave-active {
+  transition: all 0.5s ease;
+}
+
+.post-list-enter-from,
+.post-list-leave-to {
+  opacity: 0;
   transform: translateX(30px);
+}
+
+/* ensure leaving items are taken out of layout flow so that moving
+   animations can be calculated correctly. */
+.post-list-leave-active {
+  position: absolute;
 }
 </style>
