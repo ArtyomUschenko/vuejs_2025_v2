@@ -1,29 +1,37 @@
 <template>
   <div class="app">
     <h1>Страница с поставми</h1>
-    <my-button @click="fetchPosts">Получить посты</my-button>
-    <my-button @click="showDialog()"
-    style="margin-top: 10px">Добавить пост</my-button>
+    <div class="app__btns">
+      <my-button @click="fetchPosts">Получить посты</my-button>
+      <my-button @click="showDialog()">Добавить пост</my-button>
+      <my-select v-model="SelectedSort" :options="sortOptions"/>
+    </div>
     <my-dialog v-model:show="dialogVisible">
       <post-form @create="createPost"/>
     </my-dialog>
-    <post-list :posts="posts" @remove="removePost"/>
+    <post-list :posts="posts" @remove="removePost"
+    v-if="!isPostsLoading"/>
+    <div class="" v-else>Идет загрузка...</div>
   </div>
 </template>
 <script >
 import PostForm from "@/components/PostForm.vue";
 import PostList from "@/components/PostList.vue";
 import MyDialog from "@/components/UI/MyDialog.vue";
+import MySelect from "@/components/MySelect.vue";
 import axios from "axios";
 export default {
-  components: { MyDialog, PostForm, PostList},
+  components: { MyDialog, PostForm, PostList, MySelect},
   data() {
     return {
-      posts:
-          [
-
-          ],
+      posts: [],
       dialogVisible: false,
+      isPostsLoading: false,
+      SelectedSort: "",
+      sortOptions: [
+        {value: "title", name: "По названию"},
+        {value: "body", name: "По содержимому"},
+      ]
     }
   },
   methods: {
@@ -39,14 +47,28 @@ export default {
     },
     async fetchPosts() {
       try {
-        const response = await axios.get('https://jsonplaceholder.typicode.com/posts?_limit=10');
-        this.posts = response.data;
-        console.log(response);
+        this.isPostsLoading = true;
+          const response = await axios.get('https://jsonplaceholder.typicode.com/posts?_limit=10');
+          this.posts = response.data;
+          console.log(response);
+
       }
       catch (e) {
         alert("Ошибка")
+      } finally {
+        this.isPostsLoading = false;
       }
     }
+  },
+  mounted() {
+    this.fetchPosts();
+  },
+  watch: {
+    SelectedSort(newValue) {
+      this.posts.sort((post1, post2) => {
+        return post1[newValue]?.localeCompare(post2[newValue])
+      })
+  },
   }
 }
 </script>
@@ -60,6 +82,11 @@ export default {
 }
 .app {
   padding: 20px;
+}
+.app__btns {
+  margin: 15px 0;
+  display: flex;
+  justify-content: space-between;
 }
 
 
